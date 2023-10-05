@@ -5,6 +5,8 @@ Shader "Custom/Water" {
 		}
 
 		Pass {
+            Cull Off
+
 			CGPROGRAM
 
 			#pragma vertex vp
@@ -16,13 +18,17 @@ Shader "Custom/Water" {
 			struct VertexData {
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
+                float2 uv : TEXCOORD0;
 			};
 
 			struct v2f {
 				float4 pos : SV_POSITION;
+                float2 uv : TEXCOORD0;
 				float3 normal : TEXCOORD1;
 				float3 worldPos : TEXCOORD2;
 			};
+
+            int _ShellIndex;
 
 			float hash(uint n) {
 				// integer hash copied from Hugo Elias
@@ -37,12 +43,22 @@ Shader "Custom/Water" {
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
                 i.pos = UnityObjectToClipPos(v.vertex);
+                i.uv = v.uv;
 
 				return i;
 			}
 
 			float4 fp(v2f i) : SV_TARGET {
-                return 1.0f;
+
+                int shellIndex = _ShellIndex;
+                int shellCount = 16;
+                
+                float3 pos = float3(i.uv.x, (float)shellIndex / (float)shellCount, i.uv.y);
+                pos = pos * 2 - 1;
+
+                clip((dot(pos, pos) < (sin(_Time.y) * 0.5f + 0.5f)) - 1);
+                
+                return dot(pos, pos);
 			}
 
 			ENDCG
