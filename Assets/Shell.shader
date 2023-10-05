@@ -1,58 +1,51 @@
-Shader "Unlit/Shell"
-{
-    Properties
-    {
-        _MainTex ("Texture", 2D) = "white" {}
-    }
-    SubShader
-    {
-        Tags { "RenderType"="Opaque" }
-        LOD 100
+Shader "Custom/Water" {
+	SubShader {
+		Tags {
+			"LightMode" = "ForwardBase"
+		}
 
-        Pass
-        {
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
+		Pass {
+			CGPROGRAM
 
-            #include "UnityCG.cginc"
+			#pragma vertex vp
+			#pragma fragment fp
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+			#include "UnityPBSLighting.cginc"
+            #include "AutoLight.cginc"
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
-                float4 vertex : SV_POSITION;
-            };
+			struct VertexData {
+				float4 vertex : POSITION;
+				float3 normal : NORMAL;
+			};
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+			struct v2f {
+				float4 pos : SV_POSITION;
+				float3 normal : TEXCOORD1;
+				float3 worldPos : TEXCOORD2;
+			};
 
-            v2f vert (appdata v)
-            {
-                v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
-                return o;
-            }
+			float hash(uint n) {
+				// integer hash copied from Hugo Elias
+				n = (n << 13U) ^ n;
+				n = n * (n * n * 15731U + 0x789221U) + 0x1376312589U;
+				return float(n & uint(0x7fffffffU)) / float(0x7fffffff);
+			}
 
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
-            }
-            ENDCG
-        }
-    }
+			v2f vp(VertexData v) {
+				v2f i;
+
+                i.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                i.normal = normalize(UnityObjectToWorldNormal(v.normal));
+                i.pos = UnityObjectToClipPos(v.vertex);
+
+				return i;
+			}
+
+			float4 fp(v2f i) : SV_TARGET {
+                return 1.0f;
+			}
+
+			ENDCG
+		}
+	}
 }
