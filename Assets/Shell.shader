@@ -28,7 +28,7 @@ Shader "Custom/Water" {
 				float3 worldPos : TEXCOORD2;
 			};
 
-            int _ShellIndex;
+            int _ShellIndex, _ShellCount;
 
 			float hash(uint n) {
 				// integer hash copied from Hugo Elias
@@ -40,6 +40,11 @@ Shader "Custom/Water" {
 			v2f vp(VertexData v) {
 				v2f i;
 
+				float shellIndex = (float)_ShellIndex / (float)_ShellCount;
+
+				v.vertex.xyz += v.normal.xyz * 0.1f * shellIndex;
+				v.vertex.x += (sin(_Time.y * 2) * 0.5f + 0.5f) * 0.01f * shellIndex;
+
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
                 i.pos = UnityObjectToClipPos(v.vertex);
@@ -48,17 +53,21 @@ Shader "Custom/Water" {
 				return i;
 			}
 
+
 			float4 fp(v2f i) : SV_TARGET {
+				uint2 tid = i.uv * 100;
+                uint seed = tid.x + 100 * tid.y + 100 * 10;
+                float shellIndex = _ShellIndex;
+                float shellCount = _ShellCount;
 
-                int shellIndex = _ShellIndex;
-                int shellCount = 16;
-                
-                float3 pos = float3(i.uv.x, (float)shellIndex / (float)shellCount, i.uv.y);
-                pos = pos * 2 - 1;
+                float rand = hash(seed) + 0.1f;
 
-                clip((dot(pos, pos) < (sin(_Time.y) * 0.5f + 0.5f)) - 1);
+                float3 pos = float3(i.uv.x, shellIndex / shellCount, i.uv.y);
+                //pos = pos * 2 - 1;
                 
-                return dot(pos, pos);
+                clip((pos.y < rand) - 1);
+                
+                return float4(0.25, 0.75, 0.1, 1.0) * pos.y;
 			}
 
 			ENDCG

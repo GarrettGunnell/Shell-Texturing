@@ -6,41 +6,51 @@ public class SimpleShell : MonoBehaviour {
     public Mesh shellMesh;
     public Shader shellShader;
 
-    [Range(0, 16)]
-    public int shellIndex = 0;
+    public bool updateStatics = true;
+
+    [Range(1, 256)]
+    public int shellCount = 16;
 
     private Material shellMaterial;
     private GameObject[] shells;
 
-    void Start() {
+    void OnEnable() {
         shellMaterial = new Material(shellShader);
 
-        shells = new GameObject[2];
-        shells[0] = new GameObject("Shell 1");
-        shells[0].AddComponent<MeshFilter>();
-        shells[0].AddComponent<MeshRenderer>();
+        shells = new GameObject[shellCount];
 
-        Vector3 rotation = new Vector3(90, 0, 0);
-        shells[0].transform.eulerAngles = rotation;
-        
-        shells[0].GetComponent<MeshFilter>().mesh = shellMesh;
-        shells[0].GetComponent<MeshRenderer>().material = shellMaterial;
-        shells[0].transform.parent = this.transform;
+        for (int i = 0; i < shellCount; ++i) {
+            shells[i] = new GameObject("Shell 1");
+            shells[i].AddComponent<MeshFilter>();
+            shells[i].AddComponent<MeshRenderer>();
 
-        shells[1] = new GameObject("Shell 2");
-        shells[1].AddComponent<MeshFilter>();
-        shells[1].AddComponent<MeshRenderer>();
-
-        shells[1].transform.eulerAngles = rotation;
-        
-        shells[1].GetComponent<MeshFilter>().mesh = shellMesh;
-        shells[1].GetComponent<MeshRenderer>().material = shellMaterial;
-        shells[1].transform.parent = this.transform;
+            Vector3 rotation = new Vector3(90, 0, 0);
+            shells[i].transform.eulerAngles = rotation;
+            
+            shells[i].GetComponent<MeshFilter>().mesh = shellMesh;
+            shells[i].GetComponent<MeshRenderer>().material = shellMaterial;
+            shells[i].transform.parent = this.transform;
+            shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellCount", shellCount);
+            shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i + 1);
+        }
     }
 
     void Update() {
-        shells[0].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", shellIndex);
-        shells[1].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", shellIndex + 1);
-        
+
+        if (updateStatics) {
+            for (int i = 0; i < shellCount; ++i) {
+                shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellCount", shellCount);
+                shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i + 1);
+            }
+        }
+
+    }
+
+    void OnDisable() {
+        for (int i = 0; i < shells.Length; ++i) {
+            Destroy(shells[i]);
+        }
+
+        shells = null;
     }
 }
