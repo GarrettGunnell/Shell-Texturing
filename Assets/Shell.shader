@@ -42,8 +42,8 @@ Shader "Custom/Water" {
 
 				float shellIndex = (float)_ShellIndex / (float)_ShellCount;
 
-				v.vertex.xyz += v.normal.xyz * 0.1f * shellIndex;
-				v.vertex.x += (sin(_Time.y * 2) * 0.5f + 0.5f) * 0.01f * shellIndex;
+				v.vertex.xyz += v.normal.xyz * 0.075f * shellIndex;
+				v.vertex.xz += (sin(_Time.y * 1.25 + shellIndex) * 0.5f + 0.5f) * 0.015f * shellIndex;
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
@@ -55,19 +55,25 @@ Shader "Custom/Water" {
 
 
 			float4 fp(v2f i) : SV_TARGET {
-				uint2 tid = i.uv * 100;
-                uint seed = tid.x + 100 * tid.y + 100 * 10;
+				float2 newUV = i.uv * 150;
+				float2 localUV = frac(newUV) * 2 - 1;
+				
+				float localDistanceFromCenter = length(localUV);
+
+                uint2 tid = newUV;
+				uint seed = tid.x + 100 * tid.y + 100 * 10;
                 float shellIndex = _ShellIndex;
                 float shellCount = _ShellCount;
 
-                float rand = hash(seed) + 0.1f;
+                float rand = saturate(hash(seed));
+                float h = shellIndex / shellCount;
 
-                float3 pos = float3(i.uv.x, shellIndex / shellCount, i.uv.y);
-                //pos = pos * 2 - 1;
+				int tooShort = h <= rand;
+				int insideThickness = (localDistanceFromCenter) < ((2.0f) * (rand - h));
+
+                clip((insideThickness * tooShort) - 1);
                 
-                clip((pos.y < rand) - 1);
-                
-                return float4(0.25, 0.75, 0.1, 1.0) * pos.y;
+                return float4(0.25, 0.75, 0.1, 1.0) * h;
 			}
 
 			ENDCG
