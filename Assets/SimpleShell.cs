@@ -11,6 +11,20 @@ public class SimpleShell : MonoBehaviour {
     [Range(1, 256)]
     public int shellCount = 16;
 
+    [Range(0.0f, 0.5f)]
+    public float shellLength = 0.15f;
+
+    [Range(1.0f, 1000.0f)]
+    public float density = 100.0f;
+
+    [Range(-1.0f, 1.0f)]
+    public float noiseBias = 0.0f;
+
+    [Range(0.0f, 5.0f)]
+    public float thickness = 1.0f;
+
+    public Color shellColor;
+
     private Material shellMaterial;
     private GameObject[] shells;
 
@@ -32,6 +46,11 @@ public class SimpleShell : MonoBehaviour {
             shells[i].transform.parent = this.transform;
             shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellCount", shellCount);
             shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i + 1);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellLength", shellLength);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Density", density);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseBias", noiseBias);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Thickness", thickness);
+            shells[i].GetComponent<MeshRenderer>().material.SetVector("_ShellColor", shellColor);
         }
     }
 
@@ -41,6 +60,11 @@ public class SimpleShell : MonoBehaviour {
             for (int i = 0; i < shellCount; ++i) {
                 shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellCount", shellCount);
                 shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i + 1);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellLength", shellLength);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Density", density);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseBias", noiseBias);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Thickness", thickness);
+                shells[i].GetComponent<MeshRenderer>().material.SetVector("_ShellColor", shellColor);
             }
         }
 

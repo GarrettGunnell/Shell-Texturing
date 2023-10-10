@@ -29,6 +29,8 @@ Shader "Custom/Water" {
 			};
 
             int _ShellIndex, _ShellCount;
+			float _ShellLength, _Density, _NoiseBias, _Thickness;
+			float3 _ShellColor;
 
 			float hash(uint n) {
 				// integer hash copied from Hugo Elias
@@ -42,7 +44,8 @@ Shader "Custom/Water" {
 
 				float shellIndex = (float)_ShellIndex / (float)_ShellCount;
 
-				v.vertex.xyz += v.normal.xyz * 0.075f * shellIndex;
+				float length = _ShellLength;
+				v.vertex.xyz += v.normal.xyz * length * shellIndex;
 				v.vertex.xz += (sin(_Time.y * 1.25 + shellIndex) * 0.5f + 0.5f) * 0.015f * shellIndex;
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
@@ -55,7 +58,8 @@ Shader "Custom/Water" {
 
 
 			float4 fp(v2f i) : SV_TARGET {
-				float2 newUV = i.uv * 150;
+				float density = _Density;
+				float2 newUV = i.uv * density;
 				float2 localUV = frac(newUV) * 2 - 1;
 				
 				float localDistanceFromCenter = length(localUV);
@@ -65,15 +69,18 @@ Shader "Custom/Water" {
                 float shellIndex = _ShellIndex;
                 float shellCount = _ShellCount;
 
-                float rand = saturate(hash(seed));
+				float noiseBias = _NoiseBias;
+                float rand = saturate(hash(seed) + noiseBias);
                 float h = shellIndex / shellCount;
 
 				int tooShort = h <= rand;
-				int insideThickness = (localDistanceFromCenter) < ((2.0f) * (rand - h));
+				float thickness = _Thickness;
+				int insideThickness = (localDistanceFromCenter) < (thickness * (rand - h));
 
                 clip((insideThickness * tooShort) - 1);
                 
-                return float4(0.25, 0.75, 0.1, 1.0) * h;
+				float3 color = _ShellColor;
+                return float4(color * h, 1.0);
 			}
 
 			ENDCG
