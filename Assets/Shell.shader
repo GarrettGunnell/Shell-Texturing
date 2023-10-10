@@ -29,7 +29,7 @@ Shader "Custom/Water" {
 			};
 
             int _ShellIndex, _ShellCount;
-			float _ShellLength, _Density, _NoiseBias, _Thickness;
+			float _ShellLength, _Density, _NoiseBias, _Thickness, _Attenuation;
 			float3 _ShellColor;
 
 			float hash(uint n) {
@@ -63,6 +63,8 @@ Shader "Custom/Water" {
 				float2 localUV = frac(newUV) * 2 - 1;
 				
 				float localDistanceFromCenter = length(localUV);
+				float2 dirFromCenter = localUV;
+				float3 normal = normalize(float3(dirFromCenter.x, 1.0f, dirFromCenter.y));
 
                 uint2 tid = newUV;
 				uint seed = tid.x + 100 * tid.y + 100 * 10;
@@ -73,14 +75,16 @@ Shader "Custom/Water" {
                 float rand = saturate(hash(seed) + noiseBias);
                 float h = shellIndex / shellCount;
 
-				int tooShort = h <= rand;
 				float thickness = _Thickness;
 				int insideThickness = (localDistanceFromCenter) < (thickness * (rand - h));
 
-                clip((insideThickness * tooShort) - 1);
+                clip(insideThickness - 1 * saturate(_ShellIndex - 1));
                 
 				float3 color = _ShellColor;
-                return float4(color * h, 1.0);
+				float ndotl = dot(normal, _WorldSpaceLightPos0) * 0.5f + 0.5f;
+				ndotl = ndotl * ndotl;
+
+                return float4(color * pow(h, _Attenuation) * ndotl, 1.0);
 			}
 
 			ENDCG
