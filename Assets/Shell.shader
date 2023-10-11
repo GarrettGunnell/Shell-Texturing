@@ -30,7 +30,7 @@ Shader "Custom/Water" {
 
             int _ShellIndex, _ShellCount;
 			float _ShellLength, _Density, _NoiseBias, _Thickness, _Attenuation;
-			float3 _ShellColor;
+			float3 _ShellColor, _Direction;
 
 			float hash(uint n) {
 				// integer hash copied from Hugo Elias
@@ -49,10 +49,10 @@ Shader "Custom/Water" {
 
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
 
-				float3 G = mul(unity_ObjectToWorld, normalize(float3(0, -1, 0)));
-				float k = pow(shellIndex, 3.0f);
+				float3 G = (_Direction);
+				float k = pow(shellIndex, 5.0f);
 
-				v.vertex.xyz += G * k * 0.01f;
+				v.vertex.xyz += G * k * 0.075f * saturate(DotClamped(i.normal, G) + 0.55f);
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.pos = UnityObjectToClipPos(v.vertex);
@@ -88,6 +88,9 @@ Shader "Custom/Water" {
 				float3 color = _ShellColor;
 				float ndotl = dot(normal, _WorldSpaceLightPos0) * 0.5f + 0.5f;
 				ndotl = ndotl * ndotl;
+				//color = _Direction;
+
+				//return dot(i.normal, normalize(_Direction));
 
                 return float4(color * pow(h, _Attenuation) * ndotl, 1.0);
 			}

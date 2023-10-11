@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -25,11 +26,13 @@ public class SimpleShell : MonoBehaviour {
 
     public Color shellColor;
 
-    [Range(0.0f, 3.0f)]
+    [Range(0.0f, 5.0f)]
     public float occlusionAttenuation = 1.0f;
 
     private Material shellMaterial;
     private GameObject[] shells;
+
+    private Vector3 displacementDirection = new Vector3(0, 0, 0);
 
     void OnEnable() {
         shellMaterial = new Material(shellShader);
@@ -59,6 +62,25 @@ public class SimpleShell : MonoBehaviour {
     }
 
     void Update() {
+        float velocity = 1.0f;
+        
+        Vector3 direction = new Vector3(0, 0, 0);
+        Vector3 oppositeDirection = new Vector3(0, 0, 0);
+
+        direction.x = Convert.ToInt32(Input.GetKey(KeyCode.D)) - Convert.ToInt32(Input.GetKey(KeyCode.A));
+        direction.y = Convert.ToInt32(Input.GetKey(KeyCode.W)) - Convert.ToInt32(Input.GetKey(KeyCode.S));
+        direction.z = Convert.ToInt32(Input.GetKey(KeyCode.Q)) - Convert.ToInt32(Input.GetKey(KeyCode.E));
+
+        Vector3 currentPosition = this.transform.position;
+        direction.Normalize();
+        currentPosition += direction * velocity * Time.deltaTime;
+        this.transform.position = currentPosition;
+
+        displacementDirection -= direction * Time.deltaTime * 10.0f;
+        if (direction == Vector3.zero)
+            displacementDirection.y -= 5.0f * Time.deltaTime;
+
+        if (displacementDirection.magnitude > 1) displacementDirection.Normalize();
 
         if (updateStatics) {
             for (int i = 0; i < shellCount; ++i) {
@@ -70,9 +92,13 @@ public class SimpleShell : MonoBehaviour {
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Thickness", thickness);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Attenuation", occlusionAttenuation);
                 shells[i].GetComponent<MeshRenderer>().material.SetVector("_ShellColor", shellColor);
+                shells[i].GetComponent<MeshRenderer>().material.SetVector("_Direction", displacementDirection);
+            }
+        } else {
+            for (int i = 0; i < shellCount; ++i) {
+                shells[i].GetComponent<MeshRenderer>().material.SetVector("_Direction", displacementDirection);
             }
         }
-
     }
 
     void OnDisable() {
