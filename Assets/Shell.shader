@@ -46,10 +46,15 @@ Shader "Custom/Water" {
 
 				float length = _ShellLength;
 				v.vertex.xyz += v.normal.xyz * length * shellIndex;
-				v.vertex.xz += (sin(_Time.y * 1.25 + shellIndex) * 0.5f + 0.5f) * 0.015f * shellIndex;
+
+                i.normal = normalize(UnityObjectToWorldNormal(v.normal));
+
+				float3 G = mul(unity_ObjectToWorld, normalize(float3(0, -1, 0)));
+				float k = pow(shellIndex, 3.0f);
+
+				v.vertex.xyz += G * k * 0.01f;
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
-                i.normal = normalize(UnityObjectToWorldNormal(v.normal));
                 i.pos = UnityObjectToClipPos(v.vertex);
                 i.uv = v.uv;
 

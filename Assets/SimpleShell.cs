@@ -41,7 +41,7 @@ public class SimpleShell : MonoBehaviour {
             shells[i].AddComponent<MeshFilter>();
             shells[i].AddComponent<MeshRenderer>();
 
-            Vector3 rotation = new Vector3(90, 0, 0);
+            Vector3 rotation = new Vector3(0, 0, 0);
             shells[i].transform.eulerAngles = rotation;
             
             shells[i].GetComponent<MeshFilter>().mesh = shellMesh;
