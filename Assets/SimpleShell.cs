@@ -12,7 +12,7 @@ public class SimpleShell : MonoBehaviour {
     [Range(1, 256)]
     public int shellCount = 16;
 
-    [Range(0.0f, 0.5f)]
+    [Range(0.0f, 1.0f)]
     public float shellLength = 0.15f;
 
     [Range(1.0f, 1000.0f)]

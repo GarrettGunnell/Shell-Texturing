@@ -42,10 +42,18 @@ Shader "Custom/Water" {
 			v2f vp(VertexData v) {
 				v2f i;
 
+
+				float2 newUV = v.uv * _Density;
+				uint2 tid = newUV;
+				uint seed = tid.x + 100 * tid.y + 100 * 10;
+				float rand = hash(seed) * 2 - 1;
+				rand *= 0.15f;
+
 				float shellIndex = (float)_ShellIndex / (float)_ShellCount;
+				shellIndex = pow(shellIndex, 1.0f / 2.2f);
 
 				float length = _ShellLength;
-				v.vertex.xyz += v.normal.xyz * length * shellIndex;
+				v.vertex.xyz += normalize(v.normal.xyz + rand) * length * shellIndex;
 
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
 
@@ -69,7 +77,6 @@ Shader "Custom/Water" {
 				
 				float localDistanceFromCenter = length(localUV);
 				float2 dirFromCenter = localUV;
-				float3 normal = normalize(float3(dirFromCenter.x, 1.0f, dirFromCenter.y));
 
                 uint2 tid = newUV;
 				uint seed = tid.x + 100 * tid.y + 100 * 10;
@@ -79,6 +86,7 @@ Shader "Custom/Water" {
 				float noiseBias = _NoiseBias;
                 float rand = saturate(hash(seed) + noiseBias);
                 float h = shellIndex / shellCount;
+				//h = pow(h, 1.0f / 2.2f);
 
 				float thickness = _Thickness;
 				int insideThickness = (localDistanceFromCenter) < (thickness * (rand - h));
@@ -86,11 +94,8 @@ Shader "Custom/Water" {
                 clip(insideThickness - 1 * saturate(_ShellIndex - 1));
                 
 				float3 color = _ShellColor;
-				float ndotl = dot(normal, _WorldSpaceLightPos0) * 0.5f + 0.5f;
+				float ndotl = DotClamped(i.normal, _WorldSpaceLightPos0) * 0.5f + 0.5f;
 				ndotl = ndotl * ndotl;
-				//color = _Direction;
-
-				//return dot(i.normal, normalize(_Direction));
 
                 return float4(color * pow(h, _Attenuation) * ndotl, 1.0);
 			}
