@@ -52,7 +52,7 @@ Shader "Custom/Water" {
 				float3 G = (_Direction);
 				float k = pow(shellIndex, 5.0f);
 
-				v.vertex.xyz += G * k * 0.075f * saturate(DotClamped(i.normal, G) + 0.55f);
+				v.vertex.xyz += G * k * 0.1f;
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.pos = UnityObjectToClipPos(v.vertex);
