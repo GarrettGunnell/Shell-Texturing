@@ -170,13 +170,13 @@ MonoBehaviour:
   shellMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   shellShader: {fileID: 4800000, guid: ebce530a4f00d2f45a0afa93a5c575e0, type: 3}
   updateStatics: 1
-  shellCount: 16
+  shellCount: 256
   shellLength: 0.15
-  density: 100
+  density: 366
   noiseBias: 0
-  thickness: 1
-  shellColor: {r: 0, g: 0, b: 0, a: 0}
-  occlusionAttenuation: 1
+  thickness: 3.53
+  shellColor: {r: 0.7529412, g: 0.5424671, b: 0.4392157, a: 0}
+  occlusionAttenuation: 2.04
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -466,3 +466,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fxaaShader: {fileID: 4800000, guid: 8941256f06090d544b31364d82f12454, type: 3}
+  contrastThreshold: 0.0312
+  relativeThreshold: 0.063
+  subpixelBlending: 1

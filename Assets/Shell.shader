@@ -29,7 +29,7 @@ Shader "Custom/Water" {
 			};
 
             int _ShellIndex, _ShellCount;
-			float _ShellLength, _Density, _NoiseBias, _Thickness, _Attenuation;
+			float _ShellLength, _Density, _NoiseBias, _Thickness, _Attenuation, _ShellDistanceAttenuation, _DirectionalVariance, _Curvature, _DisplacementStrength;
 			float3 _ShellColor, _Direction;
 
 			float hash(uint n) {
@@ -42,25 +42,23 @@ Shader "Custom/Water" {
 			v2f vp(VertexData v) {
 				v2f i;
 
-
 				float2 newUV = v.uv * _Density;
 				uint2 tid = newUV;
-				uint seed = tid.x + 100 * tid.y + 100 * 10;
-				float rand = hash(seed) * 2 - 1;
-				rand *= 0.15f;
+				uint seed = tid.x + 2000 * tid.y + 2000 * 10;
+				float3 rand = float3(hash(seed), hash(seed + 12312), hash(seed + 2321124)) * 2 - 1;
+				rand *= _DirectionalVariance;
 
 				float shellIndex = (float)_ShellIndex / (float)_ShellCount;
-				shellIndex = pow(shellIndex, 1.0f / 2.2f);
+				shellIndex = pow(shellIndex, _ShellDistanceAttenuation);
 
 				float length = _ShellLength;
 				v.vertex.xyz += normalize(v.normal.xyz + rand) * length * shellIndex;
 
                 i.normal = normalize(UnityObjectToWorldNormal(v.normal));
+				
+				float k = pow(shellIndex, _Curvature);
 
-				float3 G = (_Direction);
-				float k = pow(shellIndex, 5.0f);
-
-				v.vertex.xyz += G * k * 0.1f;
+				v.vertex.xyz += _Direction * k * _DisplacementStrength;
 
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.pos = UnityObjectToClipPos(v.vertex);
@@ -86,7 +84,6 @@ Shader "Custom/Water" {
 				float noiseBias = _NoiseBias;
                 float rand = saturate(hash(seed) + noiseBias);
                 float h = shellIndex / shellCount;
-				//h = pow(h, 1.0f / 2.2f);
 
 				float thickness = _Thickness;
 				int insideThickness = (localDistanceFromCenter) < (thickness * (rand - h));
