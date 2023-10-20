@@ -172,11 +172,15 @@ MonoBehaviour:
   updateStatics: 1
   shellCount: 256
   shellLength: 0.15
+  distanceAttenuation: 1
   density: 366
   noiseBias: 0
   thickness: 3.53
+  curvature: 1
+  displacementStrength: 0.1
   shellColor: {r: 0.7529412, g: 0.5424671, b: 0.4392157, a: 0}
   occlusionAttenuation: 2.04
+  occlusionBias: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
