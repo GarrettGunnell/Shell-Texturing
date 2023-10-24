@@ -21,8 +21,11 @@ public class SimpleShell : MonoBehaviour {
     [Range(1.0f, 1000.0f)]
     public float density = 100.0f;
 
-    [Range(-1.0f, 1.0f)]
-    public float noiseBias = 0.0f;
+    [Range(0.0f, 1.0f)]
+    public float noiseMin = 0.0f;
+
+    [Range(0.0f, 1.0f)]
+    public float noiseMax = 1.0f;
 
     [Range(0.0f, 10.0f)]
     public float thickness = 1.0f;
@@ -66,13 +69,14 @@ public class SimpleShell : MonoBehaviour {
             shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellLength", shellLength);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Density", density);
-            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseBias", noiseBias);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Thickness", thickness);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Attenuation", occlusionAttenuation);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellDistanceAttenuation", distanceAttenuation);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Curvature", curvature);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_DisplacementStrength", displacementStrength);
             shells[i].GetComponent<MeshRenderer>().material.SetFloat("_OcclusionBias", occlusionBias);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseMin", noiseMin);
+            shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseMax", noiseMax);
             shells[i].GetComponent<MeshRenderer>().material.SetVector("_ShellColor", shellColor);
         }
     }
@@ -107,15 +111,15 @@ public class SimpleShell : MonoBehaviour {
                 shells[i].GetComponent<MeshRenderer>().material.SetInt("_ShellIndex", i);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellLength", shellLength);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Density", density);
-                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseBias", noiseBias);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Thickness", thickness);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Attenuation", occlusionAttenuation);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_ShellDistanceAttenuation", distanceAttenuation);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_Curvature", curvature);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_DisplacementStrength", displacementStrength);
                 shells[i].GetComponent<MeshRenderer>().material.SetFloat("_OcclusionBias", occlusionBias);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseMin", noiseMin);
+                shells[i].GetComponent<MeshRenderer>().material.SetFloat("_NoiseMax", noiseMax);
                 shells[i].GetComponent<MeshRenderer>().material.SetVector("_ShellColor", shellColor);
-                shells[i].GetComponent<MeshRenderer>().material.SetVector("_Direction", displacementDirection);
             }
         }
     }
