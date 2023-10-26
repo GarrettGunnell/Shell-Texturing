@@ -10,7 +10,7 @@ public class SimpleShell : MonoBehaviour {
     public bool updateStatics = true;
 
     // These variables and what they do are explained on the shader code side of things
-    // You can see below which shader uniforms match up with these variables
+    // You can see below (line 70) which shader uniforms match up with these variables
     [Range(1, 256)]
     public int shellCount = 16;
 
@@ -57,13 +57,13 @@ public class SimpleShell : MonoBehaviour {
         shells = new GameObject[shellCount];
 
         for (int i = 0; i < shellCount; ++i) {
-            shells[i] = new GameObject("Shell 1");
+            shells[i] = new GameObject("Shell " + i.ToString());
             shells[i].AddComponent<MeshFilter>();
             shells[i].AddComponent<MeshRenderer>();
             
             shells[i].GetComponent<MeshFilter>().mesh = shellMesh;
             shells[i].GetComponent<MeshRenderer>().material = shellMaterial;
-            shells[i].transform.parent = this.transform;
+            shells[i].transform.SetParent(this.transform, false);
 
             // In order to tell the GPU what its uniform variable values should be, we use these "Set" functions which will set the
             // values over on the GPU. 
