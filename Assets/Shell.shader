@@ -103,7 +103,7 @@ Shader "Custom/Water" {
 				v.vertex.xyz += _ShellDirection * k * _DisplacementStrength;
 
 				// These are unused parameters but they are useful to have for playing around, such as maybe using the position of the object to generate
-				// noise instead of the uv coordinates if you want to have a wacky affect where the ball changes its hair as it moves idk man
+				// noise instead of the uv coordinates if you want to have a wacky effect where the ball changes its hair as it moves idk man
                 i.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 i.pos = UnityObjectToClipPos(v.vertex);
 
