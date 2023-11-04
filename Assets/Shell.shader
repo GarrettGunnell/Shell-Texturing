@@ -9,7 +9,7 @@ Shader "Custom/Water" {
 			// mysterious random holes in the mesh and it'll look really weird
 			// also backface culling is when we do not render triangles that are on the backside of a mesh, because that would be a waste
 			// of resources since generally you can't see those triangles but in this case we can, so we disable the backface culling
-            Cull Off
+			Cull Off
 
 			CGPROGRAM
 
@@ -21,14 +21,14 @@ Shader "Custom/Water" {
 			// Unity has a lot of built in useful graphics functions, all this stuff is on github which you can look at and read there aren't really any
 			// docs on it lmao
 			#include "UnityPBSLighting.cginc"
-            #include "AutoLight.cginc"
+			#include "AutoLight.cginc"
 
 			// This is the struct that holds all the data that vertices contain when being passed into the gpu, such as the initial vertex position,
 			// the normal, and the uv coordinates
 			struct VertexData {
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
-                float2 uv : TEXCOORD0;
+				float2 uv : TEXCOORD0;
 			};
 
 			// this is called 'v2f' which I call it that cause it stands for like 'vertex to fragment' idk i think it's a cool simple name you can name it anything!!!
@@ -37,12 +37,12 @@ Shader "Custom/Water" {
 			// because we can send over anything to be interpolated, it doesn't have to be only what came in with the vertices
 			struct v2f {
 				float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
+				float2 uv : TEXCOORD0;
 				float3 normal : TEXCOORD1;
 				float3 worldPos : TEXCOORD2;
 			};
 
-            int _ShellIndex; // This is the current shell layer being operated on, it ranges from 0 -> _ShellCount 
+			int _ShellIndex; // This is the current shell layer being operated on, it ranges from 0 -> _ShellCount 
 			int _ShellCount; // This is the total number of shells, useful for normalizing the shell index
 			float _ShellLength; // This is the amount of distance that the shells cover, if this is 1 then the shells will span across 1 world space unit
 			float _Density;  // This is the density of the strands, used for initializing the noise
@@ -91,7 +91,7 @@ Shader "Custom/Water" {
 
 				// Since we are preparing to send data over to the fragment shader, we finalize the normal by converting it to world space
 				// and it will be interpolated across triangles in the fragment shader, you kinda don't really need to worry about this since it just works (tm)
-                i.normal = normalize(UnityObjectToWorldNormal(v.normal));
+				i.normal = normalize(UnityObjectToWorldNormal(v.normal));
 				
 				// This is for the "physics" this is what controls the curvature/stiffness of the hair, the higher the exponent the more the displacement
 				// will only affect the top of the hair, this is something you can visualize in desmos pretty easily just like the shell height distance
@@ -104,11 +104,11 @@ Shader "Custom/Water" {
 
 				// These are unused parameters but they are useful to have for playing around, such as maybe using the position of the object to generate
 				// noise instead of the uv coordinates if you want to have a wacky effect where the ball changes its hair as it moves idk man
-                i.worldPos = mul(unity_ObjectToWorld, v.vertex);
-                i.pos = UnityObjectToClipPos(v.vertex);
+				i.worldPos = mul(unity_ObjectToWorld, v.vertex);
+				i.pos = UnityObjectToClipPos(v.vertex);
 
 				// This passes the vertex uvs into the fragment shader to be interpolated
-                i.uv = v.uv;
+				i.uv = v.uv;
 
 				return i;
 			}
@@ -127,22 +127,22 @@ Shader "Custom/Water" {
 
 				// This casts the above uvs to uint so it can be more easily passed into the hashing function without doing a ton of annoying casts because
 				// type casting can be really annoying and really ruin your day and you will generally not notice for potentially hours sometimes
-                uint2 tid = newUV;
+				uint2 tid = newUV;
 				uint seed = tid.x + 100 * tid.y + 100 * 10;
 
 				// This also just casts the integer uniforms to floats for easier fractional computation below, this is technically unnecessary we could just say (float)_ShellIndex
 				// but it's annoying to do that a lot so instead we use a temporary float variable
-                float shellIndex = _ShellIndex;
-                float shellCount = _ShellCount;
+				float shellIndex = _ShellIndex;
+				float shellCount = _ShellCount;
 
 				// This is kind of complicated, we generate a random number from our seed which returns a number from 0 -> 1, which is then used
 				// as an interpolator argument between the minimum noise value and the maximum noise value, which controls how short the hair can be
 				// and how long the hair can be. We could just use the hash output itself, but this gives a little bit more control over the appearance
 				// and length of the hair instead of giving all the power to the rng
-                float rand = lerp(_NoiseMin, _NoiseMax, hash(seed));
+				float rand = lerp(_NoiseMin, _NoiseMax, hash(seed));
 
 				// This is the normalized shell height as described above in the vertex shader
-                float h = shellIndex / shellCount;
+				float h = shellIndex / shellCount;
 
 				// This is the condition for discarding pixels, if the distance from the local center exceeds the thickness parameter we discard it,
 				// and we also modify the thickness and make it thinner as height increases based on the height of the blade occupying this space that way
@@ -153,7 +153,7 @@ Shader "Custom/Water" {
 				// This culls the pixel if it is outside the thickness of the strand, it also ensures that the base shell is fully opaque that way there aren't
 				// any real holes in the mesh, although there's certainly better ways to do that
 				if (outsideThickness && _ShellIndex > 0) discard;
-                
+				
 				// This is the lighting output since at this point we have determined we are not discarding the pixel, so we have to color it
 				// This lighting model is a modification of the Valve's half lambert as described in the video. It is not physically based, but it looks cool I think.
 				// What's going on here is we take the dot product between the normal and the direction of the main Unity light source (the sun) which returns a value
@@ -180,7 +180,7 @@ Shader "Custom/Water" {
 
 				// We put it all together down here by multiplying the color with Valve's half lambert and our fake ambient occlusion. You can remove some of these terms
 				// to see how it changes the lighting and shadowing.
-                return float4(_ShellColor * ndotl * ambientOcclusion, 1.0);
+				return float4(_ShellColor * ndotl * ambientOcclusion, 1.0);
 			}
 
 			// This indicates the end of the CG code block
